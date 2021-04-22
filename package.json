@@ -1,7 +1,7 @@
 {
-  "name": "sass-extract",
-  "version": "2.1.0",
-  "description": "Extract structured variables from sass files. Fast and accurate.",
+  "name": "scss-extract",
+  "version": "0.0.1",
+  "description": "Extract structured variables from scss files. Fast and accurate.",
   "main": "lib/index.js",
   "scripts": {
     "compile": "babel -d lib/ src/",
@@ -12,8 +12,8 @@
     "watch": "mocha --watch --reporter min --require babel-core/register --timeout 10000",
     "watch:fast": "FAST_TEST=true mocha --watch --reporter min --require babel-core/register"
   },
-  "repository": "jgranstrom/sass-extract",
-  "author": "John Granström <granstrom.john@gmail.com>",
+  "repository": "wuz/scss-extract",
+  "author": "Conlin Durbin <c@wuz.sh>",
   "keywords": [
     "sass",
     "scss",
