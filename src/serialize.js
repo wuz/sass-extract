@@ -1,4 +1,4 @@
-import sass from 'node-sass';
+import sass from 'sass';
 import { toColorHex } from './util';
 import parseColor from 'parse-color';
 
@@ -12,70 +12,65 @@ function serializeColor(sassColor) {
   const g = Math.round(sassColor.getG());
   const b = Math.round(sassColor.getB());
 
-  if(alpha < 0.999) {
+  if (alpha < 0.999) {
     return `rgba(${r},${g},${b},${alpha})`;
-  } else {
-    const hex = `#${toColorHex(r)}${toColorHex(g)}${toColorHex(b)}`;
-    const parsedColor = parseColor(hex);
-    if(parsedColor.keyword != null) {
-      return parsedColor.keyword;
-    } else {
-      return hex;
-    }
   }
+
+  const hex = `#${toColorHex(r)}${toColorHex(g)}${toColorHex(b)}`;
+  const parsedColor = parseColor(hex);
+  if (parsedColor.keyword != null) {
+    return parsedColor.keyword;
+  }
+  return hex;
 }
 
 /**
  * Transform a SassValue into a serialized string
  */
 function serializeValue(sassValue, isInList) {
-  switch(sassValue.constructor) {
-    case sass.types.String:
-    case sass.types.Boolean:
-      return `${sassValue.getValue()}`;
+  if (sassValue instanceof sass.types.Boolean || sassValue instanceof sass.types.String) {
+    return `${sassValue.getValue()}`;
+  }
+  if (sassValue instanceof sass.types.Number) {
+    return `${sassValue.getValue()}${sassValue.getUnit()}`;
+  }
+  if (sassValue instanceof sass.types.Color) {
+    return serializeColor(sassValue);
+  }
+  if (sassValue instanceof sass.types.Null) {
+    return `null`;
+  }
+  if (sassValue instanceof sass.types.List) {
+    const listLength = sassValue.getLength();
+    const listElement = [];
+    const hasSeparator = sassValue.getSeparator();
+    for (let i = 0; i < listLength; i++) {
+      listElement.push(serialize(sassValue.getValue(i), true));
+    }
+    // Make sure nested lists are serialized with surrounding parenthesis
+    if (isInList) {
+      return `(${listElement.join(hasSeparator ? ',' : ' ')})`;
+    }
+    return `${listElement.join(hasSeparator ? ',' : ' ')}`;
+  }
+  if (sassValue instanceof sass.types.Map) {
+    const mapLength = sassValue.getLength();
+    const mapValue = {};
+    for (let i = 0; i < mapLength; i++) {
+      const key = serialize(sassValue.getKey(i));
+      const value = serialize(sassValue.getValue(i));
+      mapValue[key] = value;
+    }
+    const serializedMapValues = Object.keys(mapValue).map((key) => `${key}: ${mapValue[key]}`);
+    return `(${serializedMapValues})`;
+  }
 
-    case sass.types.Number:
-      return `${sassValue.getValue()}${sassValue.getUnit()}`;
-
-    case sass.types.Color:
-      return serializeColor(sassValue);
-
-    case sass.types.Null: 
-      return `null`;
-
-    case sass.types.List:
-      const listLength = sassValue.getLength();
-      const listElement = [];
-      const hasSeparator = sassValue.getSeparator();
-      for(let i = 0; i < listLength; i++) {
-        listElement.push(serialize(sassValue.getValue(i), true));
-      }
-      // Make sure nested lists are serialized with surrounding parenthesis
-      if(isInList) {
-        return `(${listElement.join(hasSeparator ? ',' : ' ')})`;
-      } else {
-        return `${listElement.join(hasSeparator ? ',' : ' ')}`;
-      }
-
-    case sass.types.Map:
-      const mapLength = sassValue.getLength();
-      const mapValue = {};
-      for(let i = 0; i < mapLength; i++) {
-        const key = serialize(sassValue.getKey(i));
-        const value = serialize(sassValue.getValue(i));
-        mapValue[key] = value;
-      }
-      const serializedMapValues = Object.keys(mapValue).map(key => `${key}: ${mapValue[key]}`);
-      return `(${serializedMapValues})`;
-
-    default:
-      throw new Error(`Unsupported sass variable type '${sassValue.constructor.name}'`)
-  };
-};
+  throw new Error(`Unsupported sass variable type '${sassValue.constructor.name}'`);
+}
 
 /**
  * Create a serialized string from a sassValue object
  */
 export function serialize(sassValue, isInList) {
   return serializeValue(sassValue, isInList);
-};
+}

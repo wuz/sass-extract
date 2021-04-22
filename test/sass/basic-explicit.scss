@@ -2,6 +2,16 @@
   @return red;
 }
 
+$number1: null;
+$number2: null;
+$color: null;
+$list: null;
+$listComma: null;
+$string: null;
+$boolean: null;
+$null: '';
+$map: null;
+
 div {
   $number1: 100px !global;
   $number2: $number1 * 2 !global;
@@ -11,8 +21,8 @@ div {
   $string: 'string' !global;
   $boolean: true !global;
   $null: null !global;
-$map: (
-  number: 2em,
-  string: 'mapstring'
-) !global;
+  $map: (
+    number: 2em,
+    string: 'mapstring',
+  ) !global;
 }

@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const path = require('path');
 const { render, renderSync } = require('../src');
 const { normalizePath } = require('../src/util');
-const { types } = require('node-sass');
+const { types } = require('sass');
 
 const functionsFile = path.join(__dirname, 'sass', 'functions.scss');
 
@@ -35,7 +35,7 @@ function verifyFunctions(rendered, sourceFile) {
 const functions = {
   'fn-color()': () => new types.Color(0, 255, 0),
   'fn-size($multiplier)': (multiplier) => new types.Number(10 * multiplier.getValue(), 'px'),
-}
+};
 
 describe('functions', () => {
   describe('sync', () => {
@@ -47,8 +47,7 @@ describe('functions', () => {
 
   describe('async', () => {
     it('should extract all variables', () => {
-      return render({ file: functionsFile, functions })
-      .then(rendered => {
+      return render({ file: functionsFile, functions }).then((rendered) => {
         verifyFunctions(rendered, functionsFile);
       });
     });

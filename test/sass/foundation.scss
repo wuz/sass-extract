@@ -8,7 +8,7 @@ $base-font-size: 20px;
  */
 
 // Dependencies
-@import '../../node_modules/foundation-sites/_vendor/normalize-scss/sass/normalize';
+@import '../../node_modules/foundation-sites/scss/vendor/normalize';
 @import '../../node_modules/foundation-sites/_vendor/sassy-lists/stylesheets/helpers/missing-dependencies';
 @import '../../node_modules/foundation-sites/_vendor/sassy-lists/stylesheets/helpers/true';
 @import '../../node_modules/foundation-sites/_vendor/sassy-lists/stylesheets/functions/contain';
@@ -70,23 +70,18 @@ $base-font-size: 20px;
 @import '../../node_modules/foundation-sites/scss/components/tooltip';
 @import '../../node_modules/foundation-sites/scss/prototype/prototype';
 
-@mixin foundation-everything(
-  $flex: true,
-  $prototype: false
-) {
+@mixin foundation-everything($flex: true, $prototype: false) {
   @if $flex {
-    $global-flexbox: true !global;
+    $global-flexbox: true;
   }
 
   @include foundation-global-styles;
   @if not $flex {
     @include foundation-grid;
-  }
-  @else {
+  } @else {
     @if $xy-grid {
       @include foundation-xy-grid-classes;
-    }
-    @else {
+    } @else {
       @include foundation-flex-grid;
     }
   }

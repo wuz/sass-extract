@@ -6,7 +6,7 @@ import { Pluggable } from './pluggable';
  * Get a string id for a filename
  */
 function getFileId(filename) {
-  return new Buffer(filename).toString('base64').replace(/=/g, '');
+  return new Buffer.from(filename, 'utf-8').toString('base64').replace(/=/g, '');
 }
 
 function parseFile(filename, data) {
@@ -17,8 +17,8 @@ function getDependentDeclarations(filename, declarations) {
   const fileId = getFileId(filename);
   const dependentDeclarations = [];
 
-  declarations.explicitGlobals.forEach(declaration => {
-    if(Object.keys(declaration.deps).length > 0) {
+  declarations.explicitGlobals.forEach((declaration) => {
+    if (Object.keys(declaration.deps).length > 0) {
       dependentDeclarations.push({ filename, declaration, decFileId: fileId });
     }
   });
@@ -36,15 +36,18 @@ function processFile(idx, count, filename, data, parsedDeclarations, pluggable) 
   const variables = { global: {} };
 
   const globalDeclarationResultHandler = (declaration, value, sassValue) => {
-    if(!variables.global[declaration.declaration]) {
+    if (!variables.global[declaration.declaration]) {
       variables.global[declaration.declaration] = [];
     }
     const variableValue = pluggable.run(Pluggable.POST_VALUE, { value, sassValue }).value;
     variables.global[declaration.declaration].push({ declaration, value: variableValue });
-  }
+  };
 
   const fileId = getFileId(filename);
-  const injection = injectExtractionFunctions(fileId, declarations, dependentDeclarations, { globalDeclarationResultHandler });
+  const injection = injectExtractionFunctions(fileId, declarations, dependentDeclarations, {
+    globalDeclarationResultHandler,
+  });
+
   const injectedData = `${data}\n\n${injection.injectedData}`;
   const injectedFunctions = injection.injectedFunctions;
 
@@ -63,10 +66,12 @@ export function parseFiles(files) {
     dependentDeclarations: [],
   };
 
-  Object.keys(files).map(filename => {
+  Object.keys(files).forEach((filename) => {
     const fileDeclarations = parseFile(filename, files[filename]);
     parsedDeclarations.files[filename] = fileDeclarations;
-    parsedDeclarations.dependentDeclarations.push(...getDependentDeclarations(filename, fileDeclarations))
+    parsedDeclarations.dependentDeclarations.push(
+      ...getDependentDeclarations(filename, fileDeclarations)
+    );
   });
 
   return parsedDeclarations;
@@ -80,7 +85,14 @@ export function processFiles(orderedFiles, files, parsedDeclarations, pluggable)
   const extractions = {};
 
   orderedFiles.forEach((filename, idx) => {
-    extractions[filename] = processFile(idx, orderedFiles.length, filename, files[filename], parsedDeclarations, pluggable);
+    extractions[filename] = processFile(
+      idx,
+      orderedFiles.length,
+      filename,
+      files[filename],
+      parsedDeclarations,
+      pluggable
+    );
   });
 
   return extractions;

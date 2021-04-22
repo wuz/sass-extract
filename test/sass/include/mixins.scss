@@ -1,3 +1,5 @@
+$mixinVariable: null;
+
 @mixin mixin1 {
   $mixinVariable: 'mixin-variable' !global;
 }
@@ -7,7 +9,7 @@
 }
 
 @mixin mixin-that-overrides {
-  $defaultedAtFirst: 'actual' !global; 
+  $defaultedAtFirst: 'actual' !global;
 }
 
 @mixin mixin-default {

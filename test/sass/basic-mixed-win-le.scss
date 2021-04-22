@@ -9,14 +9,17 @@
   @return 'hello';
 }
 
-
 $list: 1px solid black;
 $listComma: tahoma, arial;
 $string: 'string';
 $map: (
   number: 2em,
-  string: 'mapstring'
+  string: 'mapstring',
 );
+
+$number1: null;
+$number2: null;
+$color: null;
 
 div {
   $number1: 100px !global;

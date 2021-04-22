@@ -1,7 +1,5 @@
-import Promise from 'bluebird';
-import fs from 'fs';
-
-Promise.promisifyAll(fs);
+import { readFile } from 'fs/promises';
+import { readFileSync } from 'fs';
 
 const RAW_DATA_FILE = 'data';
 
@@ -11,10 +9,10 @@ const RAW_DATA_FILE = 'data';
 function includeRawDataFile(includedFiles, files, entryFilename, data) {
   let orderedFiles = includedFiles;
 
-  if(entryFilename === RAW_DATA_FILE && data) {
+  if (entryFilename === RAW_DATA_FILE && data) {
     files[RAW_DATA_FILE] = data;
     orderedFiles = [...orderedFiles, RAW_DATA_FILE];
-  } else if(orderedFiles.length > 0) {
+  } else if (orderedFiles.length > 0) {
     orderedFiles = [...orderedFiles.slice(1), orderedFiles[0]];
   }
 
@@ -28,14 +26,14 @@ function includeRawDataFile(includedFiles, files, entryFilename, data) {
  * Async load a file from filename
  */
 function load(filename, encoding = 'utf8') {
-  return fs.readFileAsync(filename, encoding);
+  return readFile(filename, encoding);
 }
 
 /**
  * Sync load a file from filename
  */
 function loadSync(filename, encoding = 'utf8') {
-  return fs.readFileSync(filename, encoding);
+  return readFileSync(filename, encoding);
 }
 
 /**
@@ -44,13 +42,13 @@ function loadSync(filename, encoding = 'utf8') {
 export function loadCompiledFiles(includedFiles, entryFilename, data) {
   const files = {};
 
-  return Promise.all(includedFiles.map(filename => {
-    return load(filename)
-    .then(data => { 
-      files[filename] = data; 
-    });
-  }))
-  .then(() => {
+  return Promise.all(
+    includedFiles.map((filename) => {
+      return load(filename).then((data) => {
+        files[filename] = data;
+      });
+    })
+  ).then(() => {
     return includeRawDataFile(includedFiles, files, entryFilename, data);
   });
 }
@@ -61,7 +59,7 @@ export function loadCompiledFiles(includedFiles, entryFilename, data) {
 export function loadCompiledFilesSync(includedFiles, entryFilename, data) {
   const files = {};
 
-  includedFiles.forEach(filename => {
+  includedFiles.forEach((filename) => {
     files[filename] = loadSync(filename);
   });
 
