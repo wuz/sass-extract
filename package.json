@@ -24,7 +24,7 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": ">=4"
+    "node": ">=15"
   },
   "peerDependencies": {
     "sass": "^1.32.11"
